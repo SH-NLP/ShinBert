@@ -27,4 +27,4 @@ $ python3 pretraining_bert.py
 $ cd finetune
 $ python3 run_seq_cls.py --task {$TASK_NAME} --config_file {$CONFIG_FILE}
 ```
-See [finetune/README.md](finetune/README.me) detail
+See [finetune/README.md](finetune/README.md) detail
