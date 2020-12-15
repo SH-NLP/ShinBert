@@ -52,7 +52,7 @@ config = BertConfig(
     pooler_type="first_token_transform",
     type_vocab_size=2,
 )
-tokenizer = BertTokenizerFast.from_pretrained("../bertwordpiece_32000", max_len=32)
+tokenizer = BertTokenizerFast.from_pretrained("./bertwordpiece_32000", max_len=32)
 
 model = BertForMaskedLM(config=config)
 
@@ -210,15 +210,15 @@ class LazyDataCollatorForLanguageModeling:
 
 
 train_dataset = LazyLineByLineTextDataset(
-    dir_path='../../data/naver_news/train',
+    dir_path='../data/naver_news/train',
     block_size=32,
-    data_size=300_000_000
+    data_size=10_000_000
 )
 
 eval_dataset = LazyLineByLineTextDataset(
-    dir_path='../../data/naver_news/eval',
+    dir_path='../data/naver_news/eval',
     block_size=32,
-    data_size=30_000_000
+    data_size=1_000_000
 )
 
 # train_dataset = LineByLineTextDataset(
@@ -245,8 +245,7 @@ training_args = TrainingArguments(
     output_dir="./bert",
     overwrite_output_dir=True,
     num_train_epochs=10,
-    per_device_train_batch_size=384,
-    per_device_eval_batch_size=384,
+    per_device_train_batch_size=64,
     save_steps=1_000,
     save_total_limit=2,
     logging_dir='./logs',
@@ -254,7 +253,6 @@ training_args = TrainingArguments(
     prediction_loss_only=True,
     do_train=True, 
     do_eval=True,
-    dataloader_num_workers=10
 )
 
 trainer = Trainer(
