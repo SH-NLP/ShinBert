@@ -39,6 +39,7 @@ $$ python3 pretraining_bert.py
 ### b. Reference
 
 - [How to train a new language model from scratch using Transformers and Tokenizers](https://huggingface.co/blog/how-to-train)
+- [colab](https://colab.research.google.com/github/huggingface/blog/blob/master/notebooks/01_how_to_train.ipynb)
 
 ## 3. Finetuning
 
