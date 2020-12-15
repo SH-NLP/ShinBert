@@ -8,7 +8,10 @@
 
 ### b. Train tokenizer
 
+Edit parameters in build_tokenizer.py and run
+
 ```bash
+$$ cd tokenizer
 $$ python3 build_tokenizer.py train
 ```
 
@@ -26,6 +29,8 @@ $$ python3 build_tokenizer.py test
 
 ### a. Training
 
+Edit parameters in pretraining_bert.py and run
+
 ```bash
 $$ cd pretrain
 $$ python3 pretraining_bert.py
@@ -39,6 +44,8 @@ $$ python3 pretraining_bert.py
 
 ### a. Run
 
+Edit config.json and run
+
 ```bash
 $$ cd finetune
 $$ python3 run_seq_cls.py --task {$TASK_NAME} --config_file {$CONFIG_FILE}
@@ -47,6 +54,6 @@ $$ python3 run_seq_cls.py --task {$TASK_NAME} --config_file {$CONFIG_FILE}
 ### b. Reference
 
 - [2주 간의 KoELECTRA 개발기 - 1부 - Monologg Blog](https://monologg.kr/2020/05/02/koelectra-part1/)
-- [2주 간의 KoELECTRA 개발기 - 1부 - Monologg Blog](https://monologg.kr/2020/05/02/koelectra-part1/)
+- [2주 간의 KoELECTRA 개발기 - 2부 - Monologg Blog](https://monologg.kr/2020/05/02/koelectra-part2/)
 
 See [finetune/README.md](finetune/README.md) detail
