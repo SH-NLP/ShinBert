@@ -222,13 +222,13 @@ class LazyDataCollatorForLanguageModeling:
 """ Load Dataset
 """
 train_dataset = LazyLineByLineTextDataset(
-    dir_path='../../data/naver_news/train',
+    dir_path='../data/naver_news/train',
     block_size=32,
     data_size=100_000_000
 )
 
 eval_dataset = LazyLineByLineTextDataset(
-    dir_path='../../data/naver_news/eval',
+    dir_path='../data/naver_news/eval',
     block_size=32,
     data_size=10_000_000
 )
@@ -259,8 +259,7 @@ training_args = TrainingArguments(
     output_dir="./bert",
     overwrite_output_dir=True,
     num_train_epochs=10,
-    per_device_train_batch_size=384,
-    per_device_eval_batch_size=384,
+    per_device_train_batch_size=64,
     save_steps=1_000,
     save_total_limit=2,
     logging_dir='./logs',
