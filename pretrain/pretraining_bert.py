@@ -29,6 +29,9 @@ from transformers.tokenization_utils_base import BatchEncoding
 
 print(f"torch is available: {torch.cuda.is_available()}")
 
+""" Set Config
+BERT Base
+"""
 config = BertConfig(
     vocab_size=32_000,
     attention_probs_dropout_prob=0.1,
@@ -52,8 +55,15 @@ config = BertConfig(
     pooler_type="first_token_transform",
     type_vocab_size=2,
 )
+
+""" Load tokenizer
+bert wordpiece 32000
+"""
 tokenizer = BertTokenizerFast.from_pretrained("../bertwordpiece_32000", max_len=32)
 
+""" Load model
+Bert Model
+"""
 model = BertForMaskedLM(config=config)
 
 # config = AutoConfig.from_pretrained('bert-base-multilingual-cased')
@@ -209,16 +219,18 @@ class LazyDataCollatorForLanguageModeling:
         return inputs, labels
 
 
+""" Load Dataset
+"""
 train_dataset = LazyLineByLineTextDataset(
     dir_path='../../data/naver_news/train',
     block_size=32,
-    data_size=300_000_000
+    data_size=100_000_000
 )
 
 eval_dataset = LazyLineByLineTextDataset(
     dir_path='../../data/naver_news/eval',
     block_size=32,
-    data_size=30_000_000
+    data_size=10_000_000
 )
 
 # train_dataset = LineByLineTextDataset(
@@ -241,6 +253,8 @@ data_collator = LazyDataCollatorForLanguageModeling(
 #     tokenizer=tokenizer, mlm=True, mlm_probability=0.15
 # )
 
+""" Set Training argument
+"""
 training_args = TrainingArguments(
     output_dir="./bert",
     overwrite_output_dir=True,
@@ -254,9 +268,11 @@ training_args = TrainingArguments(
     prediction_loss_only=True,
     do_train=True, 
     do_eval=True,
-    dataloader_num_workers=10
+    # dataloader_num_workers=10
 )
 
+""" Run
+"""
 trainer = Trainer(
     model=model,
     args=training_args,
