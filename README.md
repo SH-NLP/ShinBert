@@ -8,6 +8,8 @@
 
 ### b. Train tokenizer
 
+```bash
+
 Edit parameters in build_tokenizer.py and run
 
 ```bash

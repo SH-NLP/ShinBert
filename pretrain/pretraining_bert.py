@@ -29,6 +29,9 @@ from transformers.tokenization_utils_base import BatchEncoding
 
 print(f"torch is available: {torch.cuda.is_available()}")
 
+""" Set Config
+BERT Base
+"""
 config = BertConfig(
     vocab_size=32_000,
     attention_probs_dropout_prob=0.1,
@@ -252,8 +255,11 @@ training_args = TrainingArguments(
     prediction_loss_only=True,
     do_train=True, 
     do_eval=True,
+    # dataloader_num_workers=10
 )
 
+""" Run
+"""
 trainer = Trainer(
     model=model,
     args=training_args,
