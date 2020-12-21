@@ -55,24 +55,13 @@ config = BertConfig(
     pooler_type="first_token_transform",
     type_vocab_size=2,
 )
-
-""" Load tokenizer
-bert wordpiece 32000
-"""
 tokenizer = BertTokenizerFast.from_pretrained("../bertwordpiece_32000", max_len=32)
 
-""" Load model
-Bert Model
-"""
-model = BertForMaskedLM(config=config)
-
-# config = AutoConfig.from_pretrained('bert-base-multilingual-cased')
-# print(config)
-# model = AutoModelForMaskedLM.from_pretrained('bert-base-multilingual-cased', 
-                                            # config=config)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-# model = BertForPreTraining.from_pretrained("bert/checkpoint-1470000").to(device)
+# model = BertForMaskedLM(config=config)
+model = BertForMaskedLM.from_pretrained('../bert/checkpoint-1150000',
+                                        config=config).to(device)
 
 print(f"model parameters: {model.num_parameters()}")
 # => 68 million parameters
@@ -219,45 +208,44 @@ class LazyDataCollatorForLanguageModeling:
         return inputs, labels
 
 
-""" Load Dataset
-"""
+''' original code
+
+train_dataset = LineByLineTextDataset(
+    tokenizer=tokenizer,
+    file_path='../data/naver_news/news_2_kss/train/naver_news00.txt',
+    block_size=32,
+)
+
+eval_dataset = LineByLineTextDataset(
+    tokenizer=tokenizer,
+    file_path='../data/naver_news/news_2_kss/eval/naver_news25.txt',
+    block_size=32,
+)
+
+data_collator = DataCollatorForLanguageModeling(
+    tokenizer=tokenizer, mlm=True, mlm_probability=0.15
+)
+'''
+
 train_dataset = LazyLineByLineTextDataset(
-    dir_path='../data/naver_news/train',
+    dir_path='../../data/naver_news/train',
     block_size=32,
     data_size=100_000_000
 )
 
 eval_dataset = LazyLineByLineTextDataset(
-    dir_path='../data/naver_news/eval',
+    dir_path='../../data/naver_news/eval',
     block_size=32,
     data_size=10_000_000
 )
-
-# train_dataset = LineByLineTextDataset(
-#     tokenizer=tokenizer,
-#     file_path='../data/naver_news/news_2_kss/train/naver_news00.txt',
-#     block_size=32,
-# )
-
-# eval_dataset = LineByLineTextDataset(
-#     tokenizer=tokenizer,
-#     file_path='../data/naver_news/news_2_kss/eval/naver_news25.txt',
-#     block_size=32,
-# )
 
 data_collator = LazyDataCollatorForLanguageModeling(
     tokenizer=tokenizer, mlm=True, mlm_probability=0.15, block_size=32
 )
 
-# data_collator = DataCollatorForLanguageModeling(
-#     tokenizer=tokenizer, mlm=True, mlm_probability=0.15
-# )
-
-""" Set Training argument
-"""
 training_args = TrainingArguments(
-    output_dir="./bert",
-    overwrite_output_dir=True,
+    output_dir="../bert",
+    overwrite_output_dir=False,
     num_train_epochs=10,
     per_device_train_batch_size=64,
     save_steps=1_000,
@@ -280,4 +268,4 @@ trainer = Trainer(
     eval_dataset=eval_dataset,
 )
 
-trainer.train()
+trainer.train("../bert/checkpoint-1150000")
