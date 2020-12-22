@@ -1,3 +1,4 @@
+import os
 import torch
 from torch.utils.data import Dataset
 from transformers import (
@@ -29,6 +30,27 @@ from transformers.tokenization_utils_base import BatchEncoding
 
 print(f"torch is available: {torch.cuda.is_available()}")
 
+""" output_path에 checkpuoint가 존재하면
+최신 모델을 불러와 이어서 학습한다.
+"""
+output_path = "./bert_512"
+
+def load_latest_path(output_path):
+    if not os.path.exists(output_path):
+        return None
+    ck_list = os.listdir(output_path)
+    if len(ck_list) == 0:
+        return None
+    
+    if len(ck_list) == 1:
+        return os.path.join(output_path, ck_list[0])
+    else:
+        return os.path.join(output_path, ck_list[-1])
+
+latest_model_path = load_latest_path(output_path)
+
+print(f"restore {latest_model_path}")
+
 """ Set Config
 BERT Base
 """
@@ -55,13 +77,16 @@ config = BertConfig(
     pooler_type="first_token_transform",
     type_vocab_size=2,
 )
-tokenizer = BertTokenizerFast.from_pretrained("../bertwordpiece_32000", max_len=32)
+tokenizer = BertTokenizerFast.from_pretrained("../bertwordpiece_32000", max_len=512)
 
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-# model = BertForMaskedLM(config=config)
-model = BertForMaskedLM.from_pretrained('../bert/checkpoint-1150000',
-                                        config=config).to(device)
+
+if latest_model_path is None:
+    model = BertForMaskedLM(config=config)
+else:
+    model = BertForMaskedLM.from_pretrained(latest_model_path,
+                                            config=config).to(device)
 
 print(f"model parameters: {model.num_parameters()}")
 # => 68 million parameters
@@ -138,7 +163,7 @@ class LazyDataCollatorForLanguageModeling:
     tokenizer: PreTrainedTokenizer
     mlm: bool = True
     mlm_probability: float = 0.15
-    block_size: int = 32
+    block_size: int = 512
 
     def __post_init__(self):
         if self.mlm and self.tokenizer.mask_token is None:
@@ -213,13 +238,13 @@ class LazyDataCollatorForLanguageModeling:
 train_dataset = LineByLineTextDataset(
     tokenizer=tokenizer,
     file_path='../data/naver_news/news_2_kss/train/naver_news00.txt',
-    block_size=32,
+    block_size=512,
 )
 
 eval_dataset = LineByLineTextDataset(
     tokenizer=tokenizer,
     file_path='../data/naver_news/news_2_kss/eval/naver_news25.txt',
-    block_size=32,
+    block_size=512,
 )
 
 data_collator = DataCollatorForLanguageModeling(
@@ -229,22 +254,22 @@ data_collator = DataCollatorForLanguageModeling(
 
 train_dataset = LazyLineByLineTextDataset(
     dir_path='../../data/naver_news/train',
-    block_size=32,
+    block_size=512,
     data_size=100_000_000
 )
 
 eval_dataset = LazyLineByLineTextDataset(
     dir_path='../../data/naver_news/eval',
-    block_size=32,
+    block_size=512,
     data_size=10_000_000
 )
 
 data_collator = LazyDataCollatorForLanguageModeling(
-    tokenizer=tokenizer, mlm=True, mlm_probability=0.15, block_size=32
+    tokenizer=tokenizer, mlm=True, mlm_probability=0.15, block_size=512
 )
 
 training_args = TrainingArguments(
-    output_dir="../bert",
+    output_dir=output_path,
     overwrite_output_dir=False,
     num_train_epochs=10,
     per_device_train_batch_size=64,
@@ -268,4 +293,8 @@ trainer = Trainer(
     eval_dataset=eval_dataset,
 )
 
-trainer.train("../bert/checkpoint-1150000")
+if latest_model_path is None:
+    trainer.train()
+else:
+    trainer.train(latest_model_path)
+

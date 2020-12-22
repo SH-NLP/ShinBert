@@ -54,7 +54,8 @@ logger = logging.getLogger(__name__)
 
 
 def to_list(tensor):
-    return tensor.detach().cpu().tolist()
+    # return tensor.detach().cpu().tolist()  # 오류남
+    return tensor
 
 
 def train(args, train_dataset, model, tokenizer):
@@ -82,13 +83,14 @@ def train(args, train_dataset, model, tokenizer):
         optimizer, num_warmup_steps=int(t_total * args.warmup_proportion), num_training_steps=t_total
     )
 
-    # Check if saved optimizer or scheduler states exist
-    if os.path.isfile(os.path.join(args.model_name_or_path, "optimizer.pt")) and os.path.isfile(
-            os.path.join(args.model_name_or_path, "scheduler.pt")
-    ):
-        # Load in optimizer and scheduler states
-        optimizer.load_state_dict(torch.load(os.path.join(args.model_name_or_path, "optimizer.pt")))
-        scheduler.load_state_dict(torch.load(os.path.join(args.model_name_or_path, "scheduler.pt")))
+    # 오류나서 주석처리함. 무슨 기능인지 확인 필요
+    # # Check if saved optimizer or scheduler states exist
+    # if os.path.isfile(os.path.join(args.model_name_or_path, "optimizer.pt")) and os.path.isfile(
+    #         os.path.join(args.model_name_or_path, "scheduler.pt")
+    # ):
+    #     # Load in optimizer and scheduler states
+    #     optimizer.load_state_dict(torch.load(os.path.join(args.model_name_or_path, "optimizer.pt")))
+    #     scheduler.load_state_dict(torch.load(os.path.join(args.model_name_or_path, "scheduler.pt")))
 
     # Train!
     logger.info("***** Running training *****")
@@ -251,6 +253,7 @@ def evaluate(args, model, tokenizer, prefix="", global_step=None):
             example_indices = batch[3]
 
             outputs = model(**inputs)
+            print(outputs)
 
         for i, example_index in enumerate(example_indices):
             eval_feature = features[example_index.item()]
