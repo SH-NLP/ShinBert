@@ -54,8 +54,8 @@ logger = logging.getLogger(__name__)
 
 
 def to_list(tensor):
-    # return tensor.detach().cpu().tolist()  # 오류남
-    return tensor
+    return tensor.detach().cpu().tolist()  # 오류남
+    # return tensor
 
 
 def train(args, train_dataset, model, tokenizer):
@@ -253,13 +253,14 @@ def evaluate(args, model, tokenizer, prefix="", global_step=None):
             example_indices = batch[3]
 
             outputs = model(**inputs)
-            print(outputs)
+            # print(outputs)
 
         for i, example_index in enumerate(example_indices):
             eval_feature = features[example_index.item()]
             unique_id = int(eval_feature.unique_id)
 
-            output = [to_list(output[i]) for output in outputs]
+            output = [to_list(output[i]) for output in outputs.to_tuple()]
+            # output = outputs
 
             # Some models (XLNet, XLM) use 5 arguments for their predictions, while the other "simpler"
             # models only use two.
