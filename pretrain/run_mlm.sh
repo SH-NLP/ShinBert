@@ -1,0 +1,11 @@
+CUDA_VISIBLE_DEVICES=0,1 python -m torch.distributed.launch --nproc_per_node 2 run_mlm.py \
+    --config_name ../config/bert_base \
+    --tokenizer_name ../vocab \
+    --train_file ../../data/naver_news/train/naver_news_00.txt \
+    --validation_file ../../data/naver_news/eval/naver_news_90.txt \
+    --do_train \
+    --do_eval \
+    --line_by_line \
+    --output_dir bert_dist \
+    --num_train_epochs 1 \
+    --per_device_train_batch_size 32
